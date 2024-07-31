@@ -54,7 +54,7 @@ pipeline {
 
       stage('Upload to S3') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIAL}"]]) {
                     sh """
                         aws s3 cp build/ s3://${S3_BUCKET}/ --recursive --region ${AWS_REGION}
                     """
