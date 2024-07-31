@@ -58,7 +58,7 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIAL}"]]) {
                     sh """
                         aws s3 cp dist/ s3://${S3_BUCKET}/ --recursive --region ${AWS_REGION}
-                        aws cloudfront create-invalidation —distribution-id ${S3_DISTRIBUTION_ID} —paths "/*"
+                        aws cloudfront create-invalidation --distribution-id ${S3_DISTRIBUTION_ID} --paths "/*" --region us-east-1
                     """
                 }
             }
