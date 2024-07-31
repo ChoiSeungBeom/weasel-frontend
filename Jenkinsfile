@@ -56,7 +56,7 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     sh """
-                        aws s3 cp build/index.html s3://${S3_BUCKET}/ --region ${AWS_REGION}
+                        aws s3 cp build/ s3://${S3_BUCKET}/ --recursive --region ${AWS_REGION}
                     """
                 }
             }
