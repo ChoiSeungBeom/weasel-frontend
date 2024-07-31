@@ -17,6 +17,7 @@ pipeline {
         SLACK_CHANNEL = '#alarm-jenkins'
         SLACK_CREDENTIALS_ID = 'weasel-slack-alarm'
         S3_BUCKET = 'weasel-frontend'
+        S3_DISTRIBUTION_ID = 'E1A2B3C4D5E'
     }
 
     stages {
@@ -57,7 +58,7 @@ pipeline {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIAL}"]]) {
                     sh """
                         aws s3 cp dist/ s3://${S3_BUCKET}/ --recursive --region ${AWS_REGION}
-                        aws cloudfront create-invalidation —distribution-id E1A2B3C4D5E —paths "/*"
+                        aws cloudfront create-invalidation —distribution-id ${S3_DISTRIBUTION_ID} —paths "/*"
                     """
                 }
             }
