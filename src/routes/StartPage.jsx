@@ -9,7 +9,7 @@ function App() {
         <h1>Weasel</h1>
         <p>ang kimotti</p>
         <p>
-          <Link to={"@/Prompt"}>스타또</Link>
+          <Link to={"/Prompt"}>스타또</Link>
         </p>
       </main>
     </>
