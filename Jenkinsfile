@@ -1,0 +1,97 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'Nodejs'
+    }
+
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_REPOSITORY = '393035689023.dkr.ecr.us-east-1.amazonaws.com'
+        
+        IMAGE_TAG = "weasel-frontend-${env.BUILD_NUMBER}"
+        
+        AWS_ACCOUNT_ID = '393035689023'
+        AWS_CREDENTIAL = 'weasel-AWS-Credential'
+        GIT_URL = 'https://github.com/ChoiSeungBeom/weasel-frontend.git'
+        SLACK_CHANNEL = '#alarm-jenkins'
+        SLACK_CREDENTIALS_ID = 'weasel-slack-alarm'
+        S3_BUCKET = 'weasel-frontend'
+    }
+
+    stages {
+        stage('Send message to slack') {
+            steps {
+                script {
+                    slackSend(channel: SLACK_CHANNEL,
+                              message: "Jenkins pipeline started: ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${env.BUILD_URL}",
+                              attachments: [[
+                                  color: '#0000ff',
+                                  text: 'Jenkins start!'
+                              ]])
+                }
+            }
+        }
+
+        stage('Cloning Git') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: "${GIT_URL}"]]])
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    sh '''
+                        npm install
+                        npm run build
+                    '''
+                }
+            }
+        }
+
+
+
+         stage('Upload to S3') {
+            steps {
+                withAWS(credentials: "${AWS_CREDENTIAL}", region: "${AWS_REGION}") {
+
+                    s3Upload(
+                        bucket: "${S3_BUCKET}", 
+                        path: '/', 
+                        includePathPattern: 'build/**'
+                    )
+                }
+            }
+        }
+
+        
+
+        post {
+            success {
+                slackSend(channel: SLACK_CHANNEL,
+                        message: "Build succeeded: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        attachments: [[
+                            color: '#36a64f',
+                            text: 'Build succeeded successfully.'
+                        ]])
+            }
+            failure {
+                slackSend(channel: SLACK_CHANNEL,
+                        message: "Build failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        attachments: [[
+                            color: '#ff0000',
+                            text: 'Build failed. Please check the details.'
+                        ]])
+            }
+            unstable {
+                slackSend(channel: SLACK_CHANNEL,
+                        message: "Build unstable: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        attachments: [[
+                            color: '#f39c12',
+                            text: 'Build unstable. Please check the details.'
+                        ]])
+            }
+        }
+    }
+}
