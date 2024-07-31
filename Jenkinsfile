@@ -17,7 +17,7 @@ pipeline {
         SLACK_CHANNEL = '#alarm-jenkins'
         SLACK_CREDENTIALS_ID = 'weasel-slack-alarm'
         S3_BUCKET = 'weasel-frontend'
-        S3_DISTRIBUTION_ID = 'E1A2B3C4D5E'
+        S3_DISTRIBUTION_ID = 'EBDDD040I1O72'
     }
 
     stages {
