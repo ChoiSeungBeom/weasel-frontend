@@ -52,15 +52,12 @@ pipeline {
 
 
 
-         stage('Upload to S3') {
+      stage('Upload to S3') {
             steps {
-                withAWS(credentials: "${AWS_CREDENTIAL}", region: "${AWS_REGION}") {
-
-                    s3Upload(
-                        bucket: "${S3_BUCKET}", 
-                        path: '/', 
-                        includePathPattern: 'build/**'
-                    )
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
+                    sh """
+                        aws s3 cp build/index.html s3://${S3_BUCKET}/ --region ${AWS_REGION}
+                    """
                 }
             }
         }
